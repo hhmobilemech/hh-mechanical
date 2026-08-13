@@ -31,3 +31,7 @@ Run the diagnostic regression tests with:
 ## Dashboard startup
 
 Each page load begins with a lightweight automotive instrument-cluster sequence. It automatically clears after about 2.4 seconds including its exit fade, can be skipped by clicking, tapping, or pressing Escape, and uses a short static fade when the visitor prefers reduced motion.
+
+## Vehicle service map
+
+The homepage includes an original inline-SVG pickup/SUV service map with eight keyboard-accessible vehicle areas. Selecting an area displays related services, can append that area to the existing request form, and can enter the existing Quick Diagnostic at a relevant question.

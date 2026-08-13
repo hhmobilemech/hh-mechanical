@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <script src="startup.js" defer></script>
   <script src="diagnostic.js" defer></script>
+  <script src="vehicle-map.js" defer></script>
   <script src="app.js" defer></script>
   <noscript><style>.dashboard-startup{display:none}</style></noscript>
 </head>
@@ -118,6 +119,75 @@
         <button class="button diagnostic-start" type="button" data-diagnostic-open>
           Start Diagnostic <span aria-hidden="true">→</span>
         </button>
+      </div>
+    </section>
+
+    <section class="section vehicle-map-section" aria-labelledby="vehicle-map-title">
+      <div class="shell">
+        <div class="section-heading section-heading-light vehicle-map-heading">
+          <p class="eyebrow">Visual service guide</p>
+          <h2 id="vehicle-map-title">Where's the Problem?</h2>
+          <p>Tap an area of the vehicle to see related services.</p>
+        </div>
+
+        <div class="vehicle-map-layout" data-vehicle-map>
+          <div class="vehicle-stage">
+            <p class="vehicle-stage-hint" id="vehicle-map-instructions">Choose one of the marked vehicle areas. Use Tab and Enter or Space when navigating with a keyboard.</p>
+            <div class="vehicle-figure">
+              <svg class="vehicle-svg" viewBox="0 0 900 360" role="img" aria-labelledby="vehicle-svg-title vehicle-svg-description">
+                <title id="vehicle-svg-title">Generic pickup and SUV-style vehicle service map</title>
+                <desc id="vehicle-svg-description">An original side-profile vehicle illustration with selectable service areas positioned over it.</desc>
+                <g class="vehicle-shadow"><ellipse cx="455" cy="303" rx="376" ry="17"></ellipse></g>
+                <g class="vehicle-base">
+                  <path class="vehicle-body" d="M60 251L78 207l102-18 88-87h232l105 89 175 17 58 43-14 34H82z"></path>
+                  <path class="vehicle-bed" d="M604 191h173l24 20-192-5z"></path>
+                  <path class="vehicle-window" d="M297 121h91v71H228z"></path>
+                  <path class="vehicle-window" d="M410 121h78l82 71H410z"></path>
+                  <path class="vehicle-divider" d="M399 115v91M591 192l17 68M199 192l-24 68"></path>
+                  <path class="vehicle-bumper" d="M53 251h48v24H68M808 245h41v27h-31"></path>
+                  <path class="vehicle-sill" d="M220 270h390"></path>
+                  <circle class="vehicle-wheel-outer" cx="209" cy="270" r="58"></circle>
+                  <circle class="vehicle-wheel-inner" cx="209" cy="270" r="27"></circle>
+                  <circle class="vehicle-wheel-hub" cx="209" cy="270" r="9"></circle>
+                  <circle class="vehicle-wheel-outer" cx="690" cy="270" r="58"></circle>
+                  <circle class="vehicle-wheel-inner" cx="690" cy="270" r="27"></circle>
+                  <circle class="vehicle-wheel-hub" cx="690" cy="270" r="9"></circle>
+                  <path class="vehicle-detail" d="M84 220h72M755 221h53M273 211h267M625 213h88"></path>
+                </g>
+                <g class="vehicle-region" data-vehicle-region="engine" aria-hidden="true"><path d="M60 205l164-20 44 26-28 54H69z"></path></g>
+                <g class="vehicle-region" data-vehicle-region="electrical" aria-hidden="true"><rect x="104" y="202" width="84" height="48" rx="12"></rect></g>
+                <g class="vehicle-region" data-vehicle-region="front-brakes" aria-hidden="true"><circle cx="209" cy="270" r="52"></circle></g>
+                <g class="vehicle-region" data-vehicle-region="steering" aria-hidden="true"><path d="M182 198h122l36 67H251z"></path></g>
+                <g class="vehicle-region" data-vehicle-region="drivetrain" aria-hidden="true"><path d="M302 232h276l43 50H276z"></path></g>
+                <g class="vehicle-region" data-vehicle-region="rear-brakes" aria-hidden="true"><circle cx="690" cy="270" r="52"></circle></g>
+                <g class="vehicle-region" data-vehicle-region="exhaust" aria-hidden="true"><path d="M344 275h365l87 17-8 15-112-8H344z"></path></g>
+                <g class="vehicle-region" data-vehicle-region="cooling" aria-hidden="true"><path d="M62 210l82-13 24 69H72z"></path></g>
+              </svg>
+
+              <div class="vehicle-hotspots" aria-describedby="vehicle-map-instructions">
+                <button class="vehicle-hotspot hotspot-engine" type="button" data-vehicle-hotspot="engine" aria-pressed="false" aria-label="Engine and front vehicle services"><span>Engine / Front</span></button>
+                <button class="vehicle-hotspot hotspot-electrical" type="button" data-vehicle-hotspot="electrical" aria-pressed="false" aria-label="Battery and electrical services"><span>Battery / Electrical</span></button>
+                <button class="vehicle-hotspot hotspot-front-brakes" type="button" data-vehicle-hotspot="front-brakes" aria-pressed="false" aria-label="Front wheels and brake services"><span>Front Wheels / Brakes</span></button>
+                <button class="vehicle-hotspot hotspot-steering" type="button" data-vehicle-hotspot="steering" aria-pressed="false" aria-label="Steering and suspension services"><span>Steering / Suspension</span></button>
+                <button class="vehicle-hotspot hotspot-drivetrain" type="button" data-vehicle-hotspot="drivetrain" aria-pressed="false" aria-label="Transmission and drivetrain services"><span>Transmission / Drivetrain</span></button>
+                <button class="vehicle-hotspot hotspot-rear-brakes" type="button" data-vehicle-hotspot="rear-brakes" aria-pressed="false" aria-label="Rear wheels and brake services"><span>Rear Wheels / Brakes</span></button>
+                <button class="vehicle-hotspot hotspot-exhaust" type="button" data-vehicle-hotspot="exhaust" aria-pressed="false" aria-label="Exhaust and under vehicle services"><span>Exhaust / Under Vehicle</span></button>
+                <button class="vehicle-hotspot hotspot-cooling" type="button" data-vehicle-hotspot="cooling" aria-pressed="false" aria-label="Cooling system services"><span>Cooling System</span></button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="vehicle-result" data-vehicle-result aria-live="polite" aria-atomic="true">
+            <p class="vehicle-result-label">Selected Area:</p>
+            <h3 data-vehicle-area>Select a Vehicle Area</h3>
+            <p class="vehicle-result-label">Common Services / Concerns:</p>
+            <ul data-vehicle-services><li>Choose a hotspot to view related H&amp;H services.</li></ul>
+            <div class="vehicle-result-actions">
+              <button class="button" type="button" data-vehicle-request disabled>Request Service</button>
+              <button class="button button-outline" type="button" data-vehicle-diagnostic disabled>Run Quick Diagnostic</button>
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
 
