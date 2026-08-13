@@ -155,17 +155,13 @@
                 <title id="vehicle-svg-title">Generic pickup and SUV-style vehicle service map</title>
                 <desc id="vehicle-svg-description">An original side-profile vehicle illustration facing left, with its front at the left and rear at the right.</desc>
                 <g class="vehicle-shadow"><ellipse cx="455" cy="303" rx="376" ry="17"></ellipse></g>
-                <g class="vehicle-base">
+                <g class="vehicle-base" transform="translate(900 0) scale(-1 1)" data-vehicle-artwork-direction="left">
                   <path class="vehicle-body" d="M60 251L78 207l102-18 88-87h232l105 89 175 17 58 43-14 34H82z"></path>
                   <path class="vehicle-bed" d="M604 191h173l24 20-192-5z"></path>
                   <path class="vehicle-window" d="M297 121h91v71H228z"></path>
                   <path class="vehicle-window" d="M410 121h78l82 71H410z"></path>
                   <path class="vehicle-divider" d="M399 115v91M591 192l17 68M199 192l-24 68"></path>
                   <path class="vehicle-bumper" d="M53 251h48v24H68M808 245h41v27h-31"></path>
-                  <path class="vehicle-grille" data-vehicle-end="front" d="M65 220v34M65 224h25M65 236h21M65 248h18"></path>
-                  <path class="vehicle-headlight" data-vehicle-end="front" d="M78 207l43-7-8 19H74z"></path>
-                  <path class="vehicle-tailgate" data-vehicle-end="rear" d="M801 211v43"></path>
-                  <path class="vehicle-taillight" data-vehicle-end="rear" d="M795 215h17v27h-14z"></path>
                   <path class="vehicle-sill" d="M220 270h390"></path>
                   <circle class="vehicle-wheel-outer" cx="209" cy="270" r="58"></circle>
                   <circle class="vehicle-wheel-inner" cx="209" cy="270" r="27"></circle>
@@ -174,6 +170,12 @@
                   <circle class="vehicle-wheel-inner" cx="690" cy="270" r="27"></circle>
                   <circle class="vehicle-wheel-hub" cx="690" cy="270" r="9"></circle>
                   <path class="vehicle-detail" d="M84 220h72M755 221h53M273 211h267M625 213h88"></path>
+                </g>
+                <g class="vehicle-direction-details" aria-hidden="true">
+                  <path class="vehicle-grille" data-vehicle-end="front" d="M65 220v34M65 224h25M65 236h21M65 248h18"></path>
+                  <path class="vehicle-headlight" data-vehicle-end="front" d="M78 207l43-7-8 19H74z"></path>
+                  <path class="vehicle-tailgate" data-vehicle-end="rear" d="M801 211v43"></path>
+                  <path class="vehicle-taillight" data-vehicle-end="rear" d="M795 215h17v27h-14z"></path>
                 </g>
                 <g class="vehicle-region" data-vehicle-region="engine" data-vehicle-zone="front" aria-hidden="true"><path d="M60 205l164-20 44 26-28 54H69z"></path></g>
                 <g class="vehicle-region" data-vehicle-region="electrical" data-vehicle-zone="front" aria-hidden="true"><rect x="104" y="202" width="84" height="48" rx="12"></rect></g>

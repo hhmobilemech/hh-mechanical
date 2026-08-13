@@ -29,12 +29,21 @@ test("service map exposes exactly the eight requested vehicle hotspots", () => {
 });
 
 test("vehicle artwork establishes front-left and rear-right orientation", () => {
+  assert.match(indexSource, /class="vehicle-base" transform="translate\(900 0\) scale\(-1 1\)" data-vehicle-artwork-direction="left"/);
   assert.match(indexSource, /data-vehicle-end="front"/);
   assert.match(indexSource, /data-vehicle-end="rear"/);
   assert.match(indexSource, />FRONT<\/text>/);
   assert.match(indexSource, />REAR<\/text>/);
   assert.match(indexSource, /vehicle-wheel-outer" cx="209"/);
   assert.match(indexSource, /vehicle-wheel-outer" cx="690"/);
+});
+
+test("only the physical vehicle artwork is mirrored", () => {
+  const mirroredGroup = indexSource.match(/<g class="vehicle-base"[^>]*>([\s\S]*?)<\/g>/);
+  assert.ok(mirroredGroup, "vehicle base must be a distinct mirrored SVG group");
+  assert.doesNotMatch(mirroredGroup[1], /vehicle-region|vehicle-orientation|data-vehicle-hotspot/);
+  assert.match(indexSource, /<\/g>\s*<g class="vehicle-direction-details"/);
+  assert.match(indexSource, /<g class="vehicle-orientation" aria-hidden="true">/);
 });
 
 test("hotspot coordinates follow front-left and rear-right vehicle geometry", () => {
