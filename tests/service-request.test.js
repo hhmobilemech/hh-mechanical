@@ -55,14 +55,14 @@ test("diagnostic, vehicle-map, and service-area context are included when availa
     vehicleArea: "Battery / Electrical",
     serviceArea: "Jasper, AL — Service Area Confirmation Needed",
   });
-  assert.match(message, /Diagnostic:\nWon't Start > Rapid Clicking/);
-  assert.match(message, /Vehicle Area:\nBattery \/ Electrical/);
-  assert.match(message, /Service Area Check:\nJasper, AL — Service Area Confirmation Needed/);
+  assert.match(message, /Quick Diagnostic:\nWon't Start > Rapid Clicking/);
+  assert.match(message, /Vehicle Map Selection:\nBattery \/ Electrical/);
+  assert.match(message, /Service Area: Jasper, AL — Service Area Confirmation Needed/);
 });
 
 test("blank optional context labels are omitted", () => {
   const message = formatRequest(complete, { diagnostic: " ", vehicleArea: "", serviceArea: null });
-  assert.doesNotMatch(message, /Diagnostic:|Vehicle Area:|Service Area Check:/);
+  assert.doesNotMatch(message, /Quick Diagnostic:|Vehicle Map Selection:|Service Area:/);
 });
 
 test("integrated diagnostic and vehicle summaries are not duplicated inside Problem", () => {

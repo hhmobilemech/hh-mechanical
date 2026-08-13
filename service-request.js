@@ -38,13 +38,19 @@
     if (vehicle) lines.push("", "Vehicle:", vehicle);
     if (clean(context.vehicleType)) lines.push(`Vehicle Type: ${clean(context.vehicleType)}`);
     if (clean(context.engineTrim)) lines.push(`Engine / Trim: ${clean(context.engineTrim)}`);
+    if (clean(context.problemArea)) lines.push("", "Problem Area:", clean(context.problemArea));
+    if (Array.isArray(context.symptoms) && context.symptoms.length) lines.push("Symptoms:", context.symptoms.map(clean).filter(Boolean).join(", "));
+    if (clean(context.timing)) lines.push("When It Happens:", clean(context.timing));
     if (values.location) lines.push("", "Location:", values.location);
+    if (clean(context.landmark)) lines.push(`Address / Landmark: ${clean(context.landmark)}`);
+    if (clean(context.serviceArea)) lines.push(`Service Area: ${clean(context.serviceArea)}`);
 
     const problem = withoutIntegratedSummaries(values.problem, context);
-    if (problem) lines.push("", "Problem:", problem);
-    if (clean(context.diagnostic)) lines.push("", "Diagnostic:", clean(context.diagnostic));
-    if (clean(context.vehicleArea)) lines.push("", "Vehicle Area:", clean(context.vehicleArea));
-    if (clean(context.serviceArea)) lines.push("", "Service Area Check:", clean(context.serviceArea));
+    if (problem && !clean(context.problemArea)) lines.push("", "Problem:", problem);
+    if (clean(context.diagnostic)) lines.push("", "Quick Diagnostic:", clean(context.diagnostic));
+    if (clean(context.vehicleArea)) lines.push("", "Vehicle Map Selection:", clean(context.vehicleArea));
+    if (clean(context.bestTime)) lines.push("", "Best Time to Contact:", clean(context.bestTime));
+    if (clean(context.additionalNotes)) lines.push("", "Additional Notes:", clean(context.additionalNotes));
     lines.push("", "Please contact me about mobile service.");
     return lines.join("\n");
   }

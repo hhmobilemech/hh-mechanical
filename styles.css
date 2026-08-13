@@ -358,8 +358,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .garage-progress li.is-complete { color: #aaa; }.garage-progress li.is-complete::after { background: #781016; }
 .garage-layout { min-height: 0; display: grid; grid-template-columns: minmax(0,1.4fr) minmax(270px,.6fr); overflow: hidden; }
 .garage-step { min-width: 0; overflow-y: auto; padding: clamp(24px,4vw,42px); border-right: 1px solid #383838; }
+.garage-step::before { display: block; width: 74px; height: 2px; margin: -12px 0 22px; content: ""; background: linear-gradient(90deg, transparent, #d5242d, transparent); animation: garage-scan .22s ease-out; }
 .garage-step-enter { animation: garage-step-in .17s ease-out; }
 @keyframes garage-step-in { from { opacity: .45; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+@keyframes garage-scan { from { width: 0; opacity: 0; } to { width: 74px; opacity: 1; } }
 .garage-step h3 { margin: 2px 0 24px; font-size: clamp(1.45rem,4vw,2.2rem); text-transform: uppercase; }
 .garage-step h3:focus { outline: none; }
 .garage-choices { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-bottom: 24px; }
@@ -478,8 +480,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .garage-step { padding: 22px 15px; }
   .garage-choices, .garage-fields { grid-template-columns: 1fr; }
   .garage-summary { padding: 20px 15px; }
-  .garage-footer { position: sticky; bottom: 0; padding: 9px 12px calc(9px + env(safe-area-inset-bottom)); }
-  .garage-footer p { max-width: 48%; }
+  .garage-footer { position: sticky; bottom: 0; flex-wrap: wrap; padding: 9px 12px calc(9px + env(safe-area-inset-bottom)); }
+  .garage-footer p { max-width: none; flex: 1 1 100%; }
+  .garage-footer p:empty { display: none; }
+  .garage-footer > div { width: 100%; }
+  .garage-footer > div > button { flex: 1 1 0; }
   .garage-review-actions { display: grid; grid-template-columns: 1fr; }
 }
 
@@ -503,4 +508,5 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .garage-step, .garage-step::before { animation: none !important; }
 }

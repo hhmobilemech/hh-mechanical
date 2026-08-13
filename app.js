@@ -50,8 +50,16 @@ document.querySelector("[data-current-year]").textContent = new Date().getFullYe
 const requestContext = {
   diagnostic: "",
   diagnosticSummary: "",
+  problemArea: "",
+  symptoms: [],
+  timing: "",
   vehicleArea: "",
   vehicleSummary: "",
+  vehicleType: "",
+  engineTrim: "",
+  landmark: "",
+  bestTime: "",
+  additionalNotes: "",
   serviceArea: "",
 };
 
@@ -400,6 +408,7 @@ if (garageDialog) {
   const backButton = garageDialog.querySelector("[data-garage-back]");
   const nextButton = garageDialog.querySelector("[data-garage-next]");
   let garageTrigger = null;
+  let garageInitialized = false;
 
   function garageInput(label, key, options = {}) {
     const field = element("div", "garage-field");
@@ -413,7 +422,11 @@ if (garageDialog) {
     if (options.inputMode) input.inputMode = options.inputMode;
     if (options.placeholder) input.placeholder = options.placeholder;
     if (options.multiline) input.rows = 4;
-    input.addEventListener("input", () => { garageSession.set({ [key]: input.value }); updateGarageSummary(); });
+    input.addEventListener("input", () => {
+      garageSession.set({ [key]: input.value });
+      options.onInput?.(input.value);
+      updateGarageSummary();
+    });
     field.append(labelNode, input);
     return field;
   }
@@ -448,7 +461,10 @@ if (garageDialog) {
     choices.forEach(({ id, name }) => {
       const button = element("button", "garage-choice", name); button.type = "button";
       button.classList.toggle("is-selected", state.areaId === id); button.setAttribute("aria-pressed", String(state.areaId === id));
-      button.addEventListener("click", () => { garageSession.set({ areaId: id, symptoms: [], timing: "" }); renderGarage(); });
+      button.addEventListener("click", () => {
+        garageSession.set(state.areaId === id ? { areaId: id } : { areaId: id, symptoms: [], timing: "" });
+        renderGarage();
+      });
       grid.append(button);
     });
     stepView.append(grid);
@@ -475,24 +491,36 @@ if (garageDialog) {
       value => garageSession.toggleSymptom(value), true));
     stepView.append(element("h4", "garage-followup", "When Does It Happen?"));
     stepView.append(choiceGrid(HHGarage.timings, state.timing, value => garageSession.set({ timing: value })));
-    stepView.append(garageInput("Additional Notes (Optional)", "additionalNotes", { multiline: true }));
   }
 
   function renderLocationStep(state) {
     stepView.append(element("p", "garage-kicker", "Step 4 // Location"), element("h3", "", "Where Is the Vehicle?"));
-    stepView.append(garageInput("City / Location", "location"), garageInput("Address or Landmark (Optional)", "landmark"));
-    if (state.location.trim()) {
-      const result = HHServiceArea.checkServiceArea(state.location);
-      garageSession.set({ serviceAreaStatus: `${state.location.trim()} — ${result.title}` });
-      const status = element("p", `garage-area-status garage-area-${result.status}`, result.title);
-      stepView.append(status);
+    const status = element("p", "garage-area-status");
+    status.setAttribute("aria-live", "polite");
+    function updateLocationStatus(value) {
+      const entered = value.trim();
+      if (!entered) {
+        garageSession.set({ serviceAreaStatus: "" });
+        status.hidden = true;
+        return;
+      }
+      const result = HHServiceArea.checkServiceArea(entered);
+      const serviceAreaStatus = result.status === "invalid" ? result.title : `${entered} — ${result.title}`;
+      garageSession.set({ serviceAreaStatus });
+      status.className = `garage-area-status garage-area-${result.status}`;
+      status.textContent = result.title;
+      status.hidden = false;
     }
+    stepView.append(garageInput("City / Location", "location", { onInput: updateLocationStatus }),
+      garageInput("Address or Landmark (Optional)", "landmark"), status);
+    updateLocationStatus(state.location);
   }
 
   function renderContactStep() {
     stepView.append(element("p", "garage-kicker", "Step 5 // Contact"), element("h3", "", "How Should H&H Reach You?"));
     stepView.append(garageInput("Name", "name"), garageInput("Phone", "phone", { type: "tel", inputMode: "tel" }),
-      garageInput("Best Time to Contact (Optional)", "bestTime"));
+      garageInput("Best Time to Contact (Optional)", "bestTime"),
+      garageInput("Additional Notes (Optional)", "additionalNotes", { multiline: true }));
   }
 
   function renderReviewStep(state) {
@@ -504,7 +532,11 @@ if (garageDialog) {
     const edit = element("button", "button button-outline", "Edit Request"); edit.type = "button";
     edit.addEventListener("click", () => { garageSession.set({ step: 0 }); renderGarage(); });
     const reset = element("button", "diagnostic-control", "Start Over"); reset.type = "button";
-    reset.addEventListener("click", () => { garageSession.reset(); renderGarage(); });
+    reset.addEventListener("click", () => {
+      if (HHGarage.hasRequestData(garageSession.get())
+        && !window.confirm("Start over and clear this service request?")) return;
+      garageSession.reset(); renderGarage();
+    });
     actions.append(send, edit, reset); stepView.append(review, actions);
   }
 
@@ -526,7 +558,7 @@ if (garageDialog) {
   }
 
   function syncGarageToForm() {
-    const converted = HHGarage.toRequest(garageSession.get());
+    const converted = HHGarage.toRequest(garageSession.get(), requestContext);
     const fields = serviceRequestForm.elements;
     fields.name.value = converted.data.name; fields.phone.value = converted.data.phone;
     fields["vehicle-year"].value = converted.data.year; fields["vehicle-make"].value = converted.data.make;
@@ -542,7 +574,20 @@ if (garageDialog) {
   }
 
   document.querySelectorAll("[data-garage-open]").forEach(button => button.addEventListener("click", event => {
-    garageTrigger = event.currentTarget; garageDialog.showModal(); document.body.classList.add("garage-open"); renderGarage();
+    garageTrigger = event.currentTarget;
+    if (!garageInitialized) {
+      const fields = serviceRequestForm.elements;
+      garageSession.set({ name: fields.name.value, phone: fields.phone.value, year: fields["vehicle-year"].value,
+        make: fields["vehicle-make"].value, model: fields["vehicle-model"].value, location: fields.location.value,
+        diagnostic: requestContext.diagnostic,
+        diagnosticSummary: requestContext.diagnosticSummary, vehicleMapSelection: requestContext.vehicleArea });
+      garageInitialized = true;
+    }
+    const saved = garageSession.get();
+    garageSession.set({ diagnostic: saved.diagnostic || requestContext.diagnostic,
+      diagnosticSummary: saved.diagnosticSummary || requestContext.diagnosticSummary,
+      vehicleMapSelection: requestContext.vehicleArea || saved.vehicleMapSelection });
+    garageDialog.showModal(); document.body.classList.add("garage-open"); renderGarage();
   }));
   garageDialog.querySelector("[data-garage-close]").addEventListener("click", () => {
     garageDialog.close(); document.body.classList.remove("garage-open"); garageTrigger?.focus();
