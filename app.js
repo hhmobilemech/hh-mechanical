@@ -1,6 +1,12 @@
-// Replace this one value when the business phone number is available.
-// Use digits with an optional leading +, for example: "+15551234567".
-const BUSINESS_PHONE = "";
+// This single dialing-safe value powers every phone call and SMS request.
+const BUSINESS_PHONE = "+12052437867";
+
+function displayPhoneNumber(value) {
+  const digits = String(value || "").replace(/\D/g, "");
+  const local = digits.length === 11 && digits.startsWith("1") ? digits.slice(1) : digits;
+  return local.length === 10
+    ? `${local.slice(0, 3)}-${local.slice(3, 6)}-${local.slice(6)}` : String(value || "");
+}
 
 const menuButton = document.querySelector(".menu-toggle");
 const navigation = document.querySelector(".site-nav");
@@ -25,11 +31,11 @@ navigation.querySelectorAll("a").forEach(link => link.addEventListener("click", 
 document.addEventListener("keydown", event => { if (event.key === "Escape") closeMenu(); });
 
 const phoneLinks = document.querySelectorAll("[data-phone-link]");
-const phoneNotes = document.querySelectorAll("[data-phone-note]");
+const phoneDisplays = document.querySelectorAll("[data-phone-display]");
 
 if (BUSINESS_PHONE) {
   phoneLinks.forEach(link => { link.href = `tel:${BUSINESS_PHONE}`; });
-  phoneNotes.forEach(note => { note.hidden = true; });
+  phoneDisplays.forEach(display => { display.textContent = displayPhoneNumber(BUSINESS_PHONE); });
 } else {
   phoneLinks.forEach(link => {
     link.addEventListener("click", event => {
@@ -39,13 +45,15 @@ if (BUSINESS_PHONE) {
   });
 }
 
-document.querySelector("[data-service-form]").addEventListener("submit", event => {
-  event.preventDefault();
-  event.currentTarget.querySelector("[data-form-status]").textContent =
-    "REQUEST FORM DEMO // PHONE CONTACT RECOMMENDED";
-});
-
 document.querySelector("[data-current-year]").textContent = new Date().getFullYear();
+
+const requestContext = {
+  diagnostic: "",
+  diagnosticSummary: "",
+  vehicleArea: "",
+  vehicleSummary: "",
+  serviceArea: "",
+};
 
 const diagnosticDialog = document.querySelector("[data-diagnostic-dialog]");
 const diagnosticView = diagnosticDialog.querySelector("[data-diagnostic-view]");
@@ -159,6 +167,10 @@ function resetDiagnostic() {
 
 function requestDiagnosticService(summary) {
   const problem = document.querySelector("#problem");
+  const result = diagnosticSession.current();
+  requestContext.diagnostic = result.type === "result"
+    ? result.selections.map(selection => selection.label).join(" > ") : "";
+  requestContext.diagnosticSummary = summary;
   problem.value = HHDiagnostic.mergeSummary(problem.value, summary);
   closeDiagnostic();
   document.querySelector("#contact").scrollIntoView({ behavior: "smooth" });
@@ -199,6 +211,8 @@ if (vehicleMap) {
     const area = HHVehicleMap.getArea(id);
     if (!area) return;
     selectedAreaId = id;
+    requestContext.vehicleArea = area.name;
+    requestContext.vehicleSummary = area.summary;
     hotspots.forEach(hotspot => {
       const selected = hotspot.dataset.vehicleHotspot === id;
       hotspot.classList.toggle("is-selected", selected);
@@ -255,6 +269,8 @@ if (areaChecker) {
 
   function renderAreaResult(result) {
     latestResult = result;
+    requestContext.serviceArea = result.status === "invalid" ? ""
+      : `${result.entered} — ${result.title}`;
     resultPanel.hidden = false;
     resultPanel.dataset.areaState = result.status;
     resultTitle.textContent = result.title;
@@ -281,5 +297,85 @@ if (areaChecker) {
     location.value = latestResult.entered;
     document.querySelector("#contact").scrollIntoView({ behavior: "smooth" });
     location.focus({ preventScroll: true });
+  });
+}
+
+const serviceRequestForm = document.querySelector("[data-service-form]");
+
+if (serviceRequestForm) {
+  const status = serviceRequestForm.querySelector("[data-form-status]");
+  const errorPanel = serviceRequestForm.querySelector("[data-form-errors]");
+  const readyPanel = serviceRequestForm.querySelector("[data-request-ready]");
+  const readyMessage = readyPanel.querySelector("[data-request-ready-message]");
+  const preview = readyPanel.querySelector("[data-request-preview]");
+  const copyButton = readyPanel.querySelector("[data-copy-request]");
+  const copyStatus = readyPanel.querySelector("[data-copy-status]");
+  let formattedRequest = "";
+
+  function formValues() {
+    return {
+      name: serviceRequestForm.elements.name.value,
+      phone: serviceRequestForm.elements.phone.value,
+      year: serviceRequestForm.elements["vehicle-year"].value,
+      make: serviceRequestForm.elements["vehicle-make"].value,
+      model: serviceRequestForm.elements["vehicle-model"].value,
+      location: serviceRequestForm.elements.location.value,
+      problem: serviceRequestForm.elements.problem.value,
+    };
+  }
+
+  function showValidation(errors) {
+    errorPanel.replaceChildren();
+    const heading = element("strong", "", "Please complete the request:");
+    const list = element("ul");
+    errors.forEach(error => list.append(element("li", "", error)));
+    errorPanel.append(heading, list);
+    errorPanel.hidden = false;
+    status.textContent = "Service request needs more information.";
+    readyPanel.hidden = true;
+  }
+
+  serviceRequestForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const validation = HHServiceRequest.validateRequest(formValues());
+    if (!validation.valid) {
+      showValidation(validation.errors);
+      serviceRequestForm.querySelector(":invalid")?.focus();
+      return;
+    }
+
+    errorPanel.hidden = true;
+    formattedRequest = HHServiceRequest.formatRequest(validation.values, requestContext);
+    preview.textContent = formattedRequest;
+    readyPanel.hidden = false;
+    copyStatus.textContent = "";
+
+    const smsUrl = HHServiceRequest.buildSmsUrl(BUSINESS_PHONE, formattedRequest);
+    const canOpenSms = Boolean(smsUrl) && HHServiceRequest.isMobileDevice(navigator);
+    if (canOpenSms) {
+      status.textContent = "Opening your messaging app. Review the request and press Send.";
+      readyMessage.textContent = "Your messaging app is opening. Review the request and press Send yourself. Your form information remains on this page.";
+      window.location.href = smsUrl;
+    } else {
+      status.textContent = BUSINESS_PHONE
+        ? "Service request ready. Copy it or call H&H from this device."
+        : "Service request ready. Add the business phone number before SMS delivery is available.";
+      readyMessage.textContent = "This device may not support SMS links. Copy the complete request below or call H&H. Nothing has been marked as sent.";
+    }
+  });
+
+  copyButton.addEventListener("click", async () => {
+    if (!formattedRequest) return;
+    try {
+      await navigator.clipboard.writeText(formattedRequest);
+      copyStatus.textContent = "Request copied.";
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents(preview);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      copyStatus.textContent = "Select Copy from your browser to copy the highlighted request.";
+    }
   });
 }

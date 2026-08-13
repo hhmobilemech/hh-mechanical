@@ -10,6 +10,7 @@
   <script src="diagnostic.js" defer></script>
   <script src="vehicle-map.js" defer></script>
   <script src="service-area.js" defer></script>
+  <script src="service-request.js" defer></script>
   <script src="app.js" defer></script>
   <noscript><style>.dashboard-startup{display:none}</style></noscript>
 </head>
@@ -68,10 +69,13 @@
 
   <header class="site-header" data-header>
     <div class="header-inner shell">
-      <a class="brand" href="#home" aria-label="H and H Mechanical home">
-        <span class="brand-mark" aria-hidden="true">H<span>&amp;</span>H</span>
-        <span class="brand-name">MECHANICAL</span>
-      </a>
+      <div class="header-branding">
+        <a class="brand" href="#home" aria-label="H and H Mechanical home">
+          <span class="brand-mark" aria-hidden="true">H<span>&amp;</span>H</span>
+          <span class="brand-name">MECHANICAL</span>
+        </a>
+        <a class="header-phone phone-action" data-phone-link data-phone-display href="tel:+12052437867" aria-label="Call H and H Mechanical at 205-243-7867">205-243-7867</a>
+      </div>
 
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-navigation">
         <span class="sr-only">Open navigation</span>
@@ -104,7 +108,7 @@
           <a class="button phone-action" data-phone-link href="#contact">Call Now</a>
           <a class="button button-outline" href="#contact">Request Service</a>
         </div>
-        <p class="phone-note" data-phone-note>Phone number coming soon. Use the request form below.</p>
+        <p class="phone-note">Call or text <a class="phone-action" data-phone-link data-phone-display href="tel:+12052437867">205-243-7867</a></p>
       </div>
       <div class="hero-rail" aria-hidden="true"><span></span><span></span><span></span></div>
     </section>
@@ -298,15 +302,15 @@
         <div class="contact-intro">
           <p class="eyebrow">Get help where you are</p>
           <h2 id="contact-title">Request Mobile Service</h2>
-          <p>Share a few details about your vehicle and its current problem. This version of the request form is a demo and does not send information to a server.</p>
+          <p>Share a few details about your vehicle and its current problem. On a supported phone, your completed request opens in your messaging app for you to review and send.</p>
           <div class="contact-callout">
-            <span>Prefer to call?</span>
-            <a class="phone-action" data-phone-link href="#contact">Call Now</a>
-            <small data-phone-note>Phone number coming soon.</small>
+            <span>Call or Text</span>
+            <a class="phone-action" data-phone-link data-phone-display href="tel:+12052437867">205-243-7867</a>
+            <small>Reach H&amp;H directly about mobile service availability.</small>
           </div>
         </div>
 
-        <form class="service-form" data-service-form>
+        <form class="service-form" data-service-form novalidate>
           <div class="form-grid">
             <div class="field"><label for="name">Name</label><input id="name" name="name" type="text" autocomplete="name" required></div>
             <div class="field"><label for="phone">Phone</label><input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required></div>
@@ -316,8 +320,20 @@
             <div class="field"><label for="location">Current Location / City</label><input id="location" name="location" type="text" autocomplete="address-level2" required></div>
             <div class="field field-full"><label for="problem">Problem Description</label><textarea id="problem" name="problem" rows="5" required></textarea></div>
           </div>
-          <button class="button form-submit" type="submit">Submit Service Request</button>
+          <button class="button form-submit" type="submit">Send Service Request</button>
+          <div class="form-errors" data-form-errors role="alert" hidden></div>
           <p class="form-status" data-form-status role="status" aria-live="polite"></p>
+          <section class="request-ready" data-request-ready aria-labelledby="request-ready-title" hidden>
+            <span>SMS request preview</span>
+            <h3 id="request-ready-title">Service Request Ready</h3>
+            <p data-request-ready-message>Your messaging app may open on supported mobile devices. Review the request and press Send yourself.</p>
+            <pre data-request-preview></pre>
+            <div class="request-ready-actions">
+              <button class="button" type="button" data-copy-request>Copy Request</button>
+              <a class="button button-outline phone-action" data-phone-link href="#contact">Call H&amp;H</a>
+            </div>
+            <p class="copy-status" data-copy-status role="status" aria-live="polite"></p>
+          </section>
         </form>
       </div>
     </section>

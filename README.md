@@ -14,7 +14,7 @@ Then open <http://localhost:8080> in a browser. Pass a different port as the fir
 
 ## Configure the phone number
 
-Open `app.js` and set the single `BUSINESS_PHONE` value near the top. Use a dialing-safe value such as `+15551234567`. Every **Call Now** action will automatically become a telephone link.
+The official phone is configured once in `app.js` as the dialing-safe value `+12052437867`. Every phone action and SMS request uses that value, while customer-facing number displays are formatted as `205-243-7867`.
 
 The service request form is intentionally front-end only in version 1.
 
@@ -50,3 +50,13 @@ const serviceAreas = {
 ```
 
 The default lists are intentionally empty. Until confirmed locations are added, valid searches ask the customer to call or request service for availability confirmation.
+
+## SMS service requests
+
+The existing service form validates and formats a complete text-message request. On supported mobile devices it opens the native SMS composer for the customer to review and send; desktop and unconfigured-phone states show a copyable request instead. No message is automatically sent and no API credentials are used.
+
+The one `BUSINESS_PHONE` constant at the top of `app.js` enables both telephone links and SMS delivery:
+
+```js
+const BUSINESS_PHONE = "+12052437867";
+```
