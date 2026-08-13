@@ -47,18 +47,30 @@
     return lines.join("\n");
   }
 
-  function buildSmsUrl(phone, message) {
+  function smsPlatform(navigatorObject = {}) {
+    const userAgent = String(navigatorObject.userAgent || "");
+    const platform = String(navigatorObject.platform || "");
+    if (/iPhone|iPad|iPod/i.test(userAgent)
+      || (platform === "MacIntel" && Number(navigatorObject.maxTouchPoints) > 1)) return "ios";
+    if (/Android/i.test(userAgent)) return "android";
+    return "other";
+  }
+
+  function buildSmsUrl(phone, message, platform = "other") {
     const recipient = clean(phone);
     if (!recipient) return "";
-    return `sms:${recipient}?&body=${encodeURIComponent(String(message || ""))}`;
+    const separator = platform === "ios" ? "&body=" : "?body=";
+    return `sms:${recipient}${separator}${encodeURIComponent(String(message || ""))}`;
   }
 
   function isMobileDevice(navigatorObject = {}) {
     if (navigatorObject.userAgentData?.mobile === true) return true;
-    return /Android|iPhone|iPad|iPod|Mobile/i.test(String(navigatorObject.userAgent || ""));
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(String(navigatorObject.userAgent || ""))) return true;
+    return String(navigatorObject.platform || "") === "MacIntel" && Number(navigatorObject.maxTouchPoints) > 1;
   }
 
-  const api = Object.freeze({ requiredFields, validateRequest, withoutIntegratedSummaries, formatRequest, buildSmsUrl, isMobileDevice });
+  const api = Object.freeze({ requiredFields, validateRequest, withoutIntegratedSummaries, formatRequest,
+    smsPlatform, buildSmsUrl, isMobileDevice });
   globalScope.HHServiceRequest = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof globalThis !== "undefined" ? globalThis : window);

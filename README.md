@@ -55,6 +55,8 @@ The default lists are intentionally empty. Until confirmed locations are added, 
 
 The existing service form validates and formats a complete text-message request. On supported mobile devices it opens the native SMS composer for the customer to review and send; desktop and unconfigured-phone states show a copyable request instead. No message is automatically sent and no API credentials are used.
 
+The SMS link uses `?body=` for Android and other mobile handlers, and `&body=` for iPhone/iPad compatibility. The request scripts carry a small deployment version query so phones do not retain an obsolete cached submit handler after an update.
+
 The one `BUSINESS_PHONE` constant at the top of `app.js` enables both telephone links and SMS delivery:
 
 ```js

@@ -350,7 +350,8 @@ if (serviceRequestForm) {
     readyPanel.hidden = false;
     copyStatus.textContent = "";
 
-    const smsUrl = HHServiceRequest.buildSmsUrl(BUSINESS_PHONE, formattedRequest);
+    const platform = HHServiceRequest.smsPlatform(navigator);
+    const smsUrl = HHServiceRequest.buildSmsUrl(BUSINESS_PHONE, formattedRequest, platform);
     const canOpenSms = Boolean(smsUrl) && HHServiceRequest.isMobileDevice(navigator);
     if (canOpenSms) {
       status.textContent = "Opening your messaging app. Review the request and press Send.";

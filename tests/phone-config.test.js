@@ -13,7 +13,7 @@ test("one operational business phone constant contains the official dialing valu
   assert.equal(declarations.length, 1);
   assert.equal(declarations[0][1], "+12052437867");
   assert.match(app, /link\.href = `tel:\$\{BUSINESS_PHONE\}`/);
-  assert.match(app, /buildSmsUrl\(BUSINESS_PHONE, formattedRequest\)/);
+  assert.match(app, /buildSmsUrl\(BUSINESS_PHONE, formattedRequest, platform\)/);
 });
 
 test("all phone-action links are managed by the central phone configuration", () => {
@@ -30,8 +30,8 @@ test("official formatted number appears in the header, hero, and Contact section
 
 test("official number produces the SMS recipient without changing the prepared body", () => {
   const message = "H&H MECHANICAL SERVICE REQUEST\n\nProblem:\nNo start & clicking";
-  const url = buildSmsUrl("+12052437867", message);
-  assert.equal(url, `sms:+12052437867?&body=${encodeURIComponent(message)}`);
+  const url = buildSmsUrl("+12052437867", message, "android");
+  assert.equal(url, `sms:+12052437867?body=${encodeURIComponent(message)}`);
 });
 
 test("customer-facing phone placeholders have been removed", () => {

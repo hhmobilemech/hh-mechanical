@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
-  requiredFields, validateRequest, withoutIntegratedSummaries, formatRequest, buildSmsUrl, isMobileDevice,
+  requiredFields, validateRequest, withoutIntegratedSummaries, formatRequest, smsPlatform, buildSmsUrl, isMobileDevice,
 } = require("../service-request.js");
 
 const complete = {
@@ -77,18 +77,28 @@ test("integrated diagnostic and vehicle summaries are not duplicated inside Prob
   assert.equal((message.match(/Battery \/ Electrical/g) || []).length, 1);
 });
 
-test("SMS URL uses one recipient and correctly encodes special characters", () => {
+test("SMS URL uses one recipient and correctly encodes special characters on Android/default platforms", () => {
   const message = "H&H request: won't start & battery + cable?\nJasper, AL";
-  const url = buildSmsUrl("+12055551234", message);
-  assert.equal(url, `sms:+12055551234?&body=${encodeURIComponent(message)}`);
+  const url = buildSmsUrl("+12055551234", message, "android");
+  assert.equal(url, `sms:+12055551234?body=${encodeURIComponent(message)}`);
   assert.equal(decodeURIComponent(url.split("body=")[1]), message);
   assert.equal(buildSmsUrl("", message), "");
+});
+
+test("iOS SMS URLs use the recipient-compatible ampersand body separator", () => {
+  const message = "Service request\nBrake & ABS concern";
+  assert.equal(buildSmsUrl("+12052437867", message, "ios"),
+    `sms:+12052437867&body=${encodeURIComponent(message)}`);
+  assert.equal(smsPlatform({ userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0)" }), "ios");
+  assert.equal(smsPlatform({ platform: "MacIntel", maxTouchPoints: 5 }), "ios", "modern iPad desktop UA");
+  assert.equal(smsPlatform({ userAgent: "Mozilla/5.0 (Linux; Android 15; Mobile)" }), "android");
 });
 
 test("mobile detection supports modern hints and common mobile user agents", () => {
   assert.equal(isMobileDevice({ userAgentData: { mobile: true }, userAgent: "Desktop" }), true);
   assert.equal(isMobileDevice({ userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS)" }), true);
   assert.equal(isMobileDevice({ userAgent: "Mozilla/5.0 (Linux; Android 15; Mobile)" }), true);
+  assert.equal(isMobileDevice({ platform: "MacIntel", maxTouchPoints: 5, userAgent: "Desktop" }), true);
   assert.equal(isMobileDevice({ userAgentData: { mobile: false }, userAgent: "Mozilla/5.0 (X11; Linux x86_64)" }), false);
 });
 
