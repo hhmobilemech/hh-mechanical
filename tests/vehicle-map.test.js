@@ -1,9 +1,19 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
+const fs = require("node:fs");
+const path = require("node:path");
 const { createSession, mergeSummary } = require("../diagnostic.js");
 const { areas, getArea, serviceSummary } = require("../vehicle-map.js");
 
 const expectedAreas = ["engine", "electrical", "front-brakes", "steering", "drivetrain", "rear-brakes", "exhaust", "cooling"];
+const indexSource = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+const styleSource = fs.readFileSync(path.join(__dirname, "..", "styles.css"), "utf8");
+
+function hotspotLeft(className) {
+  const match = styleSource.match(new RegExp(`\\.${className}\\s*\\{[^}]*left:\\s*([\\d.]+)%`));
+  assert.ok(match, `${className} must have an explicit horizontal coordinate`);
+  return Number(match[1]);
+}
 
 test("service map exposes exactly the eight requested vehicle hotspots", () => {
   assert.deepEqual(Object.keys(areas), expectedAreas);
@@ -16,6 +26,39 @@ test("service map exposes exactly the eight requested vehicle hotspots", () => {
   });
   assert.equal(getArea("unknown"), null);
   assert.equal(serviceSummary("unknown"), "");
+});
+
+test("vehicle artwork establishes front-left and rear-right orientation", () => {
+  assert.match(indexSource, /data-vehicle-end="front"/);
+  assert.match(indexSource, /data-vehicle-end="rear"/);
+  assert.match(indexSource, />FRONT<\/text>/);
+  assert.match(indexSource, />REAR<\/text>/);
+  assert.match(indexSource, /vehicle-wheel-outer" cx="209"/);
+  assert.match(indexSource, /vehicle-wheel-outer" cx="690"/);
+});
+
+test("hotspot coordinates follow front-left and rear-right vehicle geometry", () => {
+  const engine = hotspotLeft("hotspot-engine");
+  const electrical = hotspotLeft("hotspot-electrical");
+  const frontBrakes = hotspotLeft("hotspot-front-brakes");
+  const steering = hotspotLeft("hotspot-steering");
+  const drivetrain = hotspotLeft("hotspot-drivetrain");
+  const rearBrakes = hotspotLeft("hotspot-rear-brakes");
+  const exhaust = hotspotLeft("hotspot-exhaust");
+  const cooling = hotspotLeft("hotspot-cooling");
+
+  assert.ok(engine < drivetrain && electrical < drivetrain && cooling < drivetrain);
+  assert.ok(frontBrakes < drivetrain && steering < drivetrain);
+  assert.ok(rearBrakes > drivetrain && exhaust > drivetrain);
+  assert.ok(frontBrakes < rearBrakes, "front wheel must remain left of rear wheel");
+});
+
+test("SVG highlight regions retain the matching physical zone metadata", () => {
+  for (const id of ["engine", "electrical", "steering", "cooling"]) {
+    assert.match(indexSource, new RegExp(`data-vehicle-region="${id}" data-vehicle-zone="front"`));
+  }
+  assert.match(indexSource, /data-vehicle-region="drivetrain" data-vehicle-zone="center"/);
+  assert.match(indexSource, /data-vehicle-region="exhaust" data-vehicle-zone="center-rear"/);
 });
 
 test("engine/front mapping covers the requested diagnostic and service concerns", () => {

@@ -57,6 +57,10 @@ The existing service form validates and formats a complete text-message request.
 
 The SMS link uses `?body=` for Android and other mobile handlers, and `&body=` for iPhone/iPad compatibility. The request scripts carry a small deployment version query so phones do not retain an obsolete cached submit handler after an update.
 
+## My Garage
+
+My Garage is a six-step, session-only guided request builder. Its state and workflow data live in `garage.js`; no sensitive request information is stored in local storage. Final review synchronizes into the existing service form and invokes that form's established SMS/mobile or desktop fallback delivery path.
+
 The one `BUSINESS_PHONE` constant at the top of `app.js` enables both telephone links and SMS delivery:
 
 ```js

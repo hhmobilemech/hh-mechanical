@@ -21,7 +21,7 @@ test("obsolete demo submission copy is absent from customer-facing sources", () 
 
 test("versioned request scripts bypass stale mobile copies after deployment", () => {
   assert.match(html, /service-request\.js\?v=20260812-sms-fix/);
-  assert.match(html, /app\.js\?v=20260812-sms-fix/);
+  assert.match(html, /app\.js\?v=20260813-garage/);
 });
 
 test("mobile handoff and desktop fallback share the same formatted request", () => {

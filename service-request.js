@@ -36,6 +36,8 @@
 
     const vehicle = [values.year, values.make, values.model].filter(Boolean).join(" ");
     if (vehicle) lines.push("", "Vehicle:", vehicle);
+    if (clean(context.vehicleType)) lines.push(`Vehicle Type: ${clean(context.vehicleType)}`);
+    if (clean(context.engineTrim)) lines.push(`Engine / Trim: ${clean(context.engineTrim)}`);
     if (values.location) lines.push("", "Location:", values.location);
 
     const problem = withoutIntegratedSummaries(values.problem, context);
