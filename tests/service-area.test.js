@@ -1,86 +1,85 @@
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
-const {
-  serviceAreas, normalizeCity, inputType, checkServiceArea, prefillLocation,
-} = require("../service-area.js");
+const { serviceAreas, normalizeCity, inputType, checkServiceArea, requestStatus, prefillLocation } = require("../service-area.js");
 
-const configured = {
-  cities: ["Austin", "St. Louis, MO"],
-  zipCodes: ["78701", "63101"],
-  counties: ["Travis County"],
-  notes: "Standard coverage depends on scheduling.",
-};
+const project = path.resolve(__dirname, "..");
+const app = fs.readFileSync(path.join(project, "app.js"), "utf8");
+const html = fs.readFileSync(path.join(project, "index.html"), "utf8");
 
-test("default service-area configuration is centralized and contains no invented coverage", () => {
-  assert.deepEqual(serviceAreas, { cities: [], zipCodes: [], counties: [], notes: "" });
-  assert.ok(Object.isFrozen(serviceAreas));
+test("Walker County coverage is centralized with 39 communities or aliases and 19 ZIP codes", () => {
+  assert.equal(serviceAreas.name, "Walker County, Alabama");
+  assert.equal(serviceAreas.cities.length, 36);
+  assert.equal(serviceAreas.aliases.length, 3);
+  assert.equal(serviceAreas.cities.length + serviceAreas.aliases.length, 39);
+  assert.equal(serviceAreas.zipCodes.length, 19);
+  assert.deepEqual(serviceAreas.aliases, ["Barney", "Gravleeton", "Praco"]);
+  assert.deepEqual(serviceAreas.counties, ["Walker County"]);
+  for (const value of [serviceAreas, serviceAreas.cities, serviceAreas.aliases, serviceAreas.zipCodes]) assert.ok(Object.isFrozen(value));
 });
 
-test("blank input is rejected with the required validation message", () => {
-  const result = checkServiceArea("   ");
-  assert.equal(result.status, "invalid");
-  assert.equal(result.title, "Enter a Valid City or 5-Digit ZIP Code");
+test("all configured communities, aliases, and ZIPs resolve as standard coverage", () => {
+  for (const value of [...serviceAreas.cities, ...serviceAreas.aliases, ...serviceAreas.zipCodes]) {
+    assert.equal(checkServiceArea(value).status, "standard", value);
+  }
 });
 
-test("valid city and city-state input are recognized without inventing default coverage", () => {
-  assert.equal(inputType("Austin"), "city");
-  assert.equal(inputType("St. Louis, MO"), "city");
-  assert.equal(checkServiceArea("Austin").status, "unknown");
-  assert.equal(checkServiceArea("St. Louis, MO").status, "unknown");
+test("required examples and Alabama suffix variations match exactly", () => {
+  const examples = ["Oakman", "Oakman, AL", "Oakman Alabama", "Jasper", "Curry", "Townley", "Parrish",
+    "35501", "35579", "  OAKMAN  ", "Jasper, Alabama", "Walker County, AL"];
+  for (const value of examples) {
+    const result = checkServiceArea(value);
+    assert.equal(result.status, "standard", value);
+    assert.equal(result.title, "H&H Mechanical Services Your Area");
+    assert.equal(result.message, "Walker County Mobile Service");
+    assert.equal(result.notes, "Call or text 205-243-7867 to request service.");
+    assert.equal(requestStatus(result), "WALKER COUNTY // STANDARD SERVICE AREA");
+  }
 });
 
-test("valid 5-digit ZIP input is accepted but remains unknown when coverage is unconfigured", () => {
-  assert.equal(inputType("78701"), "zip");
-  const result = checkServiceArea(" 78701 ");
-  assert.equal(result.status, "unknown");
-  assert.equal(result.entered, "78701");
-  assert.equal(result.title, "Service Area Confirmation Needed");
+test("normalization is case-insensitive and removes only an exact Alabama suffix", () => {
+  assert.equal(normalizeCity("  Oakman, AL  "), "oakman");
+  assert.equal(normalizeCity("OAKMAN Alabama"), "oakman");
+  assert.equal(normalizeCity("St. Louis, MO"), "st louis, mo");
+  assert.equal(checkServiceArea("Oakmanville").status, "outside", "no fuzzy city matching");
 });
 
-test("malformed ZIP-like values are rejected", () => {
-  for (const value of ["7870", "787011", "78701-1234", "12-34", "----"]) {
+test("outside cities and unknown ZIPs remain eligible for confirmation", () => {
+  for (const value of ["Birmingham", "Tuscaloosa", "35203"]) {
+    const result = checkServiceArea(value);
+    assert.equal(result.status, "outside", value);
+    assert.equal(result.title, "Outside Our Normal Service Area");
+    assert.equal(result.message, "We may still be able to come to you depending on distance and availability.");
+    assert.equal(result.notes, "Call or text 205-243-7867 to confirm service availability.");
+    assert.equal(requestStatus(result), "OUTSIDE NORMAL AREA // CONFIRM AVAILABILITY");
+  }
+});
+
+test("blank and malformed ZIP-like input retain validation behavior", () => {
+  assert.equal(checkServiceArea("   ").status, "invalid");
+  for (const value of ["3550", "355011", "35501-1234", "12-34", "----"]) {
     const result = checkServiceArea(value);
     assert.equal(result.status, "invalid", value);
     assert.equal(result.title, "Enter a Valid City or 5-Digit ZIP Code");
   }
-});
-
-test("city normalization handles capitalization, periods, commas, and surrounding whitespace", () => {
-  assert.equal(normalizeCity("  ST. LOUIS,mo  "), "st louis, mo");
-  assert.equal(checkServiceArea("  aUsTiN ", configured).status, "standard");
-  assert.equal(checkServiceArea(" ST LOUIS, mo ", configured).status, "standard");
-  assert.equal(checkServiceArea("travis county", configured).status, "standard");
-});
-
-test("configured cities and ZIP codes produce the normal-area result", () => {
-  for (const value of ["Austin", "78701", "63101"]) {
-    const result = checkServiceArea(value, configured);
-    assert.equal(result.status, "standard");
-    assert.equal(result.title, "You're in Our Normal Service Area");
-    assert.equal(result.message, "H&H Mechanical provides mobile service in your area.");
-    assert.equal(result.notes, configured.notes);
-  }
-});
-
-test("valid exact nonmatches are conservatively classified outside configured standard coverage", () => {
-  for (const value of ["Dallas", "75001", "Austinville"]) {
-    const result = checkServiceArea(value, configured);
-    assert.equal(result.status, "outside");
-    assert.equal(result.title, "Outside Normal Service Area");
-    assert.match(result.message, /may still be able to help/i);
-  }
-});
-
-test("unconfigured and unknown locations require confirmation", () => {
-  const result = checkServiceArea("Any Valid City", serviceAreas);
-  assert.equal(result.status, "unknown");
-  assert.equal(result.message, "Call or request service and H&H Mechanical will confirm availability for your location.");
+  assert.equal(inputType("35501"), "zip");
+  assert.equal(inputType("Oakman, AL"), "city");
 });
 
 test("request prefill updates only location and preserves every other form value", () => {
-  const before = { name: "Pat", phone: "555-0100", year: "2015", make: "Ford", model: "F-150",
-    location: "", problem: "No start" };
-  const after = prefillLocation(before, "  Austin, TX  ");
-  assert.deepEqual(after, { ...before, location: "Austin, TX" });
-  assert.equal(before.location, "", "input snapshot remains unchanged");
+  const before = { name: "Pat", phone: "555-0100", year: "2015", make: "Ford", model: "F-150", location: "", problem: "No start" };
+  assert.deepEqual(prefillLocation(before, "  Oakman, AL  "), { ...before, location: "Oakman, AL" });
+  assert.equal(before.location, "");
+  assert.match(app, /location\.value = latestResult\.entered/);
+});
+
+test("checker actions retain central phone and request integrations", () => {
+  assert.match(app, /callAction\.textContent = result\.status === "outside" \? "Call \/ Text H&H" : "Call Now"/);
+  assert.match(html, /data-phone-link data-area-call/);
+  assert.match(app, /link\.href = `tel:\$\{BUSINESS_PHONE\}`/);
+  assert.match(app, /const BUSINESS_PHONE = "\+12052437867"/);
+  assert.match(html, /service-area\.js\?v=20260813-walker-county/);
+  assert.match(html, /<h3>Walker County Mobile Service<\/h3>/);
+  assert.doesNotMatch(html, /Cities &amp; counties coming soon/);
 });

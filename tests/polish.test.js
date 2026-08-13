@@ -35,5 +35,5 @@ test("vehicle artwork orientation and hotspot coordinates remain untouched by po
 
 test("polished assets are cache-versioned for static deployment", () => {
   assert.match(html, /styles\.css\?v=20260813-visual-polish/);
-  assert.match(html, /app\.js\?v=20260813-visual-polish/);
+  assert.match(html, /app\.js\?v=20260813-walker-county/);
 });

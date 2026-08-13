@@ -320,7 +320,7 @@ if (areaChecker) {
     resultNote.textContent = result.notes;
     resultNote.hidden = !result.notes;
     resultActions.hidden = result.status === "invalid";
-    callAction.textContent = result.status === "outside" ? "Call to Confirm" : "Call Now";
+    callAction.textContent = result.status === "outside" ? "Call / Text H&H" : "Call Now";
     checkerInput.setAttribute("aria-invalid", String(result.status === "invalid"));
     resultPanel.classList.remove("area-result-updated");
     void resultPanel.offsetWidth;
@@ -531,7 +531,7 @@ if (garageDialog) {
         return;
       }
       const result = HHServiceArea.checkServiceArea(entered);
-      const serviceAreaStatus = result.status === "invalid" ? result.title : `${entered} — ${result.title}`;
+      const serviceAreaStatus = result.status === "invalid" ? result.title : HHServiceArea.requestStatus(result);
       garageSession.set({ serviceAreaStatus });
       status.className = `garage-area-status garage-area-${result.status}`;
       status.textContent = result.title;
@@ -624,7 +624,7 @@ if (garageDialog) {
     const current = garageSession.get();
     if (current.step === 3 && current.location.trim()) {
       const result = HHServiceArea.checkServiceArea(current.location);
-      garageSession.set({ serviceAreaStatus: `${current.location.trim()} — ${result.title}` });
+      garageSession.set({ serviceAreaStatus: HHServiceArea.requestStatus(result) });
     }
     const error = garageSession.validate(); if (error) { errorView.textContent = error; return; }
     garageSession.next(); renderGarage();

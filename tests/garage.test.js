@@ -16,7 +16,7 @@ const cssSource = fs.readFileSync(path.join(project, "styles.css"), "utf8");
 const complete = {
   step: 5, vehicleType: "SUV", year: "2020", make: "Chevrolet", model: "Tahoe", engineTrim: "5.3L",
   areaId: "cooling", symptoms: ["Overheating"], timing: "While Driving", location: "Oakman, AL",
-  landmark: "Near city hall", serviceAreaStatus: "Oakman, AL — Service Area Confirmation Needed",
+  landmark: "Near city hall", serviceAreaStatus: "WALKER COUNTY // STANDARD SERVICE AREA",
   name: "Arron", phone: "205-530-4397", bestTime: "Afternoon", diagnostic: "",
   diagnosticSummary: "", additionalNotes: "Coolant smell after stopping.",
 };
@@ -83,7 +83,7 @@ test("complete happy path advances through all six steps without losing data", (
   session.set({ areaId: "cooling" }); assert.equal(session.validate(), ""); session.next();
   session.toggleSymptom("Overheating"); session.toggleSymptom("Coolant Leak");
   session.set({ timing: "While Driving" }); assert.equal(session.validate(), ""); session.next();
-  session.set({ location: "Oakman, AL", serviceAreaStatus: checkServiceArea("Oakman, AL").title });
+  session.set({ location: "Oakman, AL", serviceAreaStatus: checkServiceArea("Oakman, AL").requestLabel });
   assert.equal(session.validate(), ""); session.next();
   session.set({ name: "Arron", phone: "205-530-4397" }); assert.equal(session.validate(), ""); session.next();
   assert.equal(session.get().step, 5);
@@ -117,7 +117,7 @@ test("builder output uses the established formatter and official SMS recipient",
   assert.match(message, /Symptoms:\nOverheating/);
   assert.match(message, /Quick Diagnostic:\nOverheating > Overheats While Driving/);
   assert.match(message, /Vehicle Map Selection:\nFront \/ Engine/);
-  assert.match(message, /Service Area: Oakman, AL — Service Area Confirmation Needed/);
+  assert.match(message, /Service Area: WALKER COUNTY \/\/ STANDARD SERVICE AREA/);
   assert.match(buildSmsUrl("+12052437867", message, "android"), /^sms:\+12052437867\?body=/);
 });
 
@@ -130,7 +130,9 @@ test("shared diagnostic and vehicle-map context survives Garage conversion", () 
 });
 
 test("service-area status is non-blocking and supports all configured result states", () => {
-  assert.equal(checkServiceArea("Oakman, AL").status, "unknown");
+  assert.equal(checkServiceArea("Oakman, AL").status, "standard");
+  assert.equal(checkServiceArea("Oakman, AL").requestLabel, "WALKER COUNTY // STANDARD SERVICE AREA");
+  assert.equal(checkServiceArea("Birmingham").requestLabel, "OUTSIDE NORMAL AREA // CONFIRM AVAILABILITY");
   assert.equal(checkServiceArea("Jasper, AL", { cities: ["Jasper, AL"], zipCodes: [], counties: [] }).status, "standard");
   assert.equal(checkServiceArea("Oakman, AL", { cities: ["Jasper, AL"], zipCodes: [], counties: [] }).status, "outside");
   assert.equal(validateStep({ ...complete, serviceAreaStatus: "Outside Normal Service Area" }), "");
