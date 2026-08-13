@@ -47,6 +47,32 @@ if (BUSINESS_PHONE) {
 
 document.querySelector("[data-current-year]").textContent = new Date().getFullYear();
 
+// One-shot, progressive-enhancement reveals: content remains visible if JS or the API is unavailable.
+const revealTargets = [...document.querySelectorAll("main > section:not(.hero), .site-footer")];
+const serviceCards = [...document.querySelectorAll(".service-card")];
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+serviceCards.forEach((card, index) => {
+  card.style.setProperty("--reveal-delay", `${Math.min(index % 5, 4) * 45}ms`);
+});
+
+if (!reducedMotion && "IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-revealed");
+      observer.unobserve(entry.target);
+    });
+  }, { rootMargin: "0px 0px -8%", threshold: .08 });
+
+  [...revealTargets, ...serviceCards].forEach(target => {
+    target.classList.add("reveal-pending");
+    revealObserver.observe(target);
+  });
+} else {
+  [...revealTargets, ...serviceCards].forEach(target => target.classList.add("is-revealed"));
+}
+
 const requestContext = {
   diagnostic: "",
   diagnosticSummary: "",
