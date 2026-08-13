@@ -35,3 +35,18 @@ Each page load begins with a lightweight automotive instrument-cluster sequence.
 ## Vehicle service map
 
 The homepage includes an original inline-SVG pickup/SUV service map with eight keyboard-accessible vehicle areas. Selecting an area displays related services, can append that area to the existing request form, and can enter the existing Quick Diagnostic at a relevant question.
+
+## Service area checker
+
+All confirmed geography belongs in the single `serviceAreas` object near the top of `service-area.js`:
+
+```js
+const serviceAreas = {
+  cities: [],
+  zipCodes: [],
+  counties: [],
+  notes: "",
+};
+```
+
+The default lists are intentionally empty. Until confirmed locations are added, valid searches ask the customer to call or request service for availability confirmation.

@@ -238,3 +238,48 @@ if (vehicleMap) {
 
   diagnosticButton.addEventListener("click", openDiagnostic);
 }
+
+const areaChecker = document.querySelector("[data-area-checker]");
+
+if (areaChecker) {
+  const checkerForm = areaChecker.querySelector("[data-area-checker-form]");
+  const checkerInput = checkerForm.querySelector("input");
+  const resultPanel = areaChecker.querySelector("[data-area-checker-result]");
+  const resultTitle = resultPanel.querySelector("[data-area-result-title]");
+  const resultMessage = resultPanel.querySelector("[data-area-result-message]");
+  const resultNote = resultPanel.querySelector("[data-area-result-note]");
+  const resultActions = resultPanel.querySelector("[data-area-result-actions]");
+  const callAction = resultPanel.querySelector("[data-area-call]");
+  const requestAction = resultPanel.querySelector("[data-area-request]");
+  let latestResult = null;
+
+  function renderAreaResult(result) {
+    latestResult = result;
+    resultPanel.hidden = false;
+    resultPanel.dataset.areaState = result.status;
+    resultTitle.textContent = result.title;
+    resultMessage.textContent = result.message;
+    resultNote.textContent = result.notes;
+    resultNote.hidden = !result.notes;
+    resultActions.hidden = result.status === "invalid";
+    callAction.textContent = result.status === "outside" ? "Call to Confirm" : "Call Now";
+    checkerInput.setAttribute("aria-invalid", String(result.status === "invalid"));
+    resultPanel.classList.remove("area-result-updated");
+    void resultPanel.offsetWidth;
+    resultPanel.classList.add("area-result-updated");
+  }
+
+  checkerForm.addEventListener("submit", event => {
+    event.preventDefault();
+    renderAreaResult(HHServiceArea.checkServiceArea(checkerInput.value));
+    if (latestResult.status === "invalid") checkerInput.focus();
+  });
+
+  requestAction.addEventListener("click", () => {
+    if (!latestResult || latestResult.status === "invalid") return;
+    const location = document.querySelector("#location");
+    location.value = latestResult.entered;
+    document.querySelector("#contact").scrollIntoView({ behavior: "smooth" });
+    location.focus({ preventScroll: true });
+  });
+}

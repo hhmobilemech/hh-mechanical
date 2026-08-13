@@ -222,6 +222,33 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .area-placeholder strong { display: block; margin: 10px 0; font-size: 1.3rem; text-transform: uppercase; }
 .area-placeholder p { margin-bottom: 0; color: #bbb; font-size: .9rem; }
 
+.area-checker-section { padding: 55px 0; color: white; background: #111; border-top: 1px solid #313131; border-bottom: 4px solid var(--red); }
+.area-checker-layout { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(420px, 1.28fr); align-items: start; gap: clamp(35px, 7vw, 85px); }
+.area-checker-copy h2 { margin: 0; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 950; letter-spacing: -.055em; line-height: 1; text-transform: uppercase; }
+.area-checker-copy h2::after { display: block; width: 70px; height: 5px; margin-top: 17px; content: ""; background: var(--red); transform: skewX(-22deg); }
+.area-checker-copy > p:last-child { color: #aaa; }
+.area-checker-tool { min-width: 0; }
+.area-checker-form { padding: clamp(22px, 4vw, 32px); background: #1b1b1b; border: 1px solid #404040; }
+.area-checker-form label { display: block; margin-bottom: 8px; color: white; font-size: .7rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.area-checker-input-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.area-checker-input-row input { min-width: 0; min-height: 52px; padding: 12px 14px; color: white; background: #0c0c0c; border: 1px solid #555; border-radius: 0; font-size: 1rem; }
+.area-checker-input-row input:focus { border-color: #ef4a52; outline: 2px solid transparent; box-shadow: 0 0 0 2px rgba(239,74,82,.25); }
+.area-checker-input-row input[aria-invalid="true"] { border-color: #ef4a52; }
+.area-checker-form small { display: block; margin-top: 8px; color: #888; font-size: .72rem; }
+.area-checker-result { margin-top: 12px; padding: clamp(22px, 4vw, 30px); background: #1a1a1a; border: 1px solid #444; border-left: 5px solid var(--red); }
+.area-checker-result[hidden], .area-result-actions[hidden] { display: none; }
+.area-result-updated { animation: area-result-in .18s ease-out; }
+@keyframes area-result-in { from { opacity: .5; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.area-checker-result > span { color: #999; font-size: .65rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.area-checker-result h3 { margin: 5px 0 8px; color: white; font-size: clamp(1.15rem, 3vw, 1.65rem); line-height: 1.15; text-transform: uppercase; }
+.area-checker-result p { margin: 0; color: #bbb; }
+.area-checker-result[data-area-state="standard"] { background: #211718; border-color: #b5121b; border-left-width: 7px; }
+.area-checker-result[data-area-state="outside"] { background: #1d1b1b; border-left-color: #8c8c8c; }
+.area-checker-result[data-area-state="invalid"] { background: #261719; }
+.area-result-note { margin-top: 10px !important; padding-top: 10px; border-top: 1px solid #444; font-size: .78rem; }
+.area-result-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.area-result-actions .button { flex: 1 1 180px; }
+
 .contact-section { color: white; background: var(--black); }
 .contact-layout { display: grid; grid-template-columns: .72fr 1.28fr; gap: clamp(40px, 7vw, 90px); }
 .contact-intro h2 { color: white; }
@@ -304,6 +331,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .diagnostic-entry-inner { align-items: flex-start; flex-direction: column; gap: 24px; }
   .vehicle-map-layout { grid-template-columns: 1fr; }
   .vehicle-result h3 { min-height: 0; }
+  .area-checker-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 680px) {
@@ -356,6 +384,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .vehicle-hotspot { width: 44px; height: 44px; }
   .vehicle-hotspot span { display: none; }
   .vehicle-result { padding: 25px 20px; }
+  .area-checker-section { padding: 45px 0; }
+  .area-checker-input-row { grid-template-columns: 1fr; }
+  .area-checker-input-row .button { width: 100%; min-height: 52px; }
+  .area-result-actions { display: grid; grid-template-columns: 1fr; }
+  .area-result-actions .button { width: 100%; }
 }
 
 @media (max-height: 520px) and (orientation: landscape) {

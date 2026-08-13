@@ -9,6 +9,7 @@
   <script src="startup.js" defer></script>
   <script src="diagnostic.js" defer></script>
   <script src="vehicle-map.js" defer></script>
+  <script src="service-area.js" defer></script>
   <script src="app.js" defer></script>
   <noscript><style>.dashboard-startup{display:none}</style></noscript>
 </head>
@@ -257,6 +258,38 @@
           <strong>Cities &amp; counties coming soon</strong>
           <p>Exact locations and coverage information will be added here once confirmed.</p>
         </aside>
+      </div>
+    </section>
+
+    <section class="area-checker-section" aria-labelledby="area-checker-title">
+      <div class="shell area-checker-layout" data-area-checker>
+        <div class="area-checker-copy">
+          <p class="eyebrow">Mobile service availability</p>
+          <h2 id="area-checker-title">Do We Come to You?</h2>
+          <p>Enter your city or ZIP code to check normal mobile-service coverage.</p>
+        </div>
+
+        <div class="area-checker-tool">
+          <form class="area-checker-form" data-area-checker-form novalidate>
+            <label for="area-query">City or ZIP Code</label>
+            <div class="area-checker-input-row">
+              <input id="area-query" name="service-area-query" type="text" autocomplete="postal-code" enterkeyhint="search" aria-describedby="area-query-help" required>
+              <button class="button" type="submit">Check Service Area</button>
+            </div>
+            <small id="area-query-help">Enter a city, city and state, or a 5-digit US ZIP code.</small>
+          </form>
+
+          <div class="area-checker-result" data-area-checker-result role="status" aria-live="polite" aria-atomic="true" hidden>
+            <span data-area-result-kicker>Coverage check</span>
+            <h3 data-area-result-title></h3>
+            <p data-area-result-message></p>
+            <p class="area-result-note" data-area-result-note hidden></p>
+            <div class="area-result-actions" data-area-result-actions>
+              <a class="button phone-action" data-phone-link data-area-call href="#contact">Call Now</a>
+              <button class="button button-outline" type="button" data-area-request>Request Service</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
