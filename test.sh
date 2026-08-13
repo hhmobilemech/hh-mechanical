@@ -3,4 +3,4 @@ set -eu
 
 project_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 cd "$project_dir"
-node --test --test-reporter=spec tests/diagnostic.test.js
+node --test --test-reporter=spec tests/diagnostic.test.js tests/startup.test.js

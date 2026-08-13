@@ -27,3 +27,7 @@ Run the diagnostic regression tests with:
 ```bash
 ./test.sh
 ```
+
+## Dashboard startup
+
+Each page load begins with a lightweight automotive instrument-cluster sequence. It automatically clears after about 2.4 seconds including its exit fade, can be skipped by clicking, tapping, or pressing Escape, and uses a short static fade when the visitor prefers reduced motion.

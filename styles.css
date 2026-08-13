@@ -27,6 +27,65 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .skip-link:focus { transform: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
+.dashboard-startup { position: fixed; z-index: 10000; inset: 0; display: grid; place-items: center; overflow: hidden; color: white; background: #020202; cursor: pointer; opacity: 1; transition: opacity .24s ease, transform .24s ease; }
+.dashboard-startup.is-exiting { opacity: 0; transform: translateY(-8px); }
+.dashboard-backlight { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, #242424 0%, #0c0c0c 43%, #020202 76%); }
+.dashboard-cluster { width: min(820px, 94vw); padding: 25px 20px 10px; }
+.startup-gauges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(10px, 6vw, 70px); }
+.startup-gauge { position: relative; opacity: 0; }
+.startup-gauge svg { display: block; width: 100%; overflow: visible; }
+.gauge-track, .gauge-light { fill: none; stroke-width: 5; stroke-linecap: round; }
+.gauge-track { stroke: #252525; }
+.gauge-light { stroke: #b5121b; stroke-dasharray: 100; stroke-dashoffset: 100; filter: drop-shadow(0 0 4px rgba(181,18,27,.55)); }
+.gauge-ticks { fill: none; stroke: #767676; stroke-width: 3; }
+.startup-gauge text { fill: #aaa; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 3px; text-anchor: middle; }
+.startup-gauge text.gauge-unit { fill: #666; font-size: 7px; letter-spacing: 2px; }
+.gauge-needle { position: absolute; z-index: 2; bottom: 18.5%; left: 50%; width: 39%; height: 3px; background: linear-gradient(90deg, transparent 0 7%, #b5121b 8% 100%); box-shadow: 0 0 5px rgba(181,18,27,.5); transform: translateX(-100%) rotate(-40deg); transform-origin: 100% 50%; }
+.gauge-hub { position: absolute; z-index: 3; bottom: calc(18.5% - 6px); left: calc(50% - 7px); width: 14px; height: 14px; background: #d8d8d8; border: 4px solid #3c3c3c; border-radius: 50%; box-shadow: 0 0 0 2px #111; }
+.startup-indicators { display: flex; min-height: 55px; align-items: flex-start; justify-content: center; gap: clamp(12px, 4vw, 34px); margin-top: -14px; }
+.startup-indicators span { min-width: 50px; color: #4b4b4b; font-size: .55rem; font-weight: 900; letter-spacing: .09em; text-align: center; text-transform: uppercase; }
+.startup-indicators b { display: block; margin-bottom: 4px; color: #451013; font-size: .7rem; letter-spacing: 0; line-height: 1; }
+.startup-brand { margin-top: 10px; opacity: 0; text-align: center; transform: translateY(5px); }
+.startup-brand strong { display: block; font-size: clamp(1.75rem, 6vw, 3.8rem); font-weight: 950; letter-spacing: -.055em; line-height: 1; text-transform: uppercase; }
+.startup-brand strong span { color: var(--red); }
+.startup-brand small { display: block; margin-top: 7px; color: #aaa; font-size: clamp(.56rem, 1.5vw, .78rem); font-weight: 900; letter-spacing: .2em; text-transform: uppercase; }
+.startup-brand i { display: block; width: 0; height: 2px; margin: 14px auto 0; background: var(--red); box-shadow: 0 0 8px rgba(181,18,27,.55); }
+.startup-skip { position: absolute; right: 0; bottom: max(18px, env(safe-area-inset-bottom)); left: 0; color: #555; font-size: .58rem; font-weight: 800; letter-spacing: .12em; text-align: center; text-transform: uppercase; }
+
+.dashboard-startup.is-running .dashboard-backlight { animation: startup-backlight .35s ease-out .08s forwards; }
+.dashboard-startup.is-running .startup-gauge { animation: gauge-appear .25s ease-out .3s forwards; }
+.dashboard-startup.is-running .gauge-light { animation: gauge-illuminate .38s ease-out .32s forwards; }
+.dashboard-startup.is-running .gauge-needle { animation: needle-sweep 1s cubic-bezier(.42, 0, .22, 1) .45s forwards; }
+.dashboard-startup.is-running .startup-gauge-speed .gauge-needle { animation-delay: .49s; }
+.dashboard-startup.is-running .startup-indicators span { animation: indicator-test .72s ease-in-out .44s both; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(2) { animation-delay: .49s; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(3) { animation-delay: .54s; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(4) { animation-delay: .59s; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(5) { animation-delay: .64s; }
+.dashboard-startup.is-running .startup-brand { animation: brand-reveal .35s ease-out 1.3s forwards; }
+.dashboard-startup.is-running .startup-brand i { animation: brand-line .4s ease-out 1.48s forwards; }
+@keyframes startup-backlight { to { opacity: 1; } }
+@keyframes gauge-appear { to { opacity: 1; } }
+@keyframes gauge-illuminate { to { stroke-dashoffset: 0; } }
+@keyframes needle-sweep { 0% { transform: translateX(-100%) rotate(-40deg); } 58% { transform: translateX(-100%) rotate(188deg); } 100% { transform: translateX(-100%) rotate(-18deg); } }
+@keyframes indicator-test { 0%, 100% { color: #4b4b4b; } 18%, 70% { color: #c6c6c6; } }
+.dashboard-startup.is-running .startup-indicators span { --indicator: #b5121b; }
+.dashboard-startup.is-running .startup-indicators span b { animation: indicator-icon-test .72s ease-in-out .44s both; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(2) b { animation-delay: .49s; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(3) b { animation-delay: .54s; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(4) b { animation-delay: .59s; }
+.dashboard-startup.is-running .startup-indicators span:nth-child(5) b { animation-delay: .64s; }
+@keyframes indicator-icon-test { 0%, 100% { color: #451013; text-shadow: none; } 18%, 70% { color: #d22a32; text-shadow: 0 0 7px rgba(181,18,27,.65); } }
+@keyframes brand-reveal { to { opacity: 1; transform: none; } }
+@keyframes brand-line { to { width: min(230px, 45vw); } }
+
+.dashboard-startup.is-reduced .dashboard-backlight, .dashboard-startup.is-reduced .startup-gauge, .dashboard-startup.is-reduced .startup-brand { animation: reduced-startup .1s ease-out forwards; }
+.dashboard-startup.is-reduced .gauge-light { stroke-dashoffset: 0; animation: none; }
+.dashboard-startup.is-reduced .gauge-needle { transform: translateX(-100%) rotate(-18deg); animation: none; }
+.dashboard-startup.is-reduced .startup-indicators span, .dashboard-startup.is-reduced .startup-indicators span b { animation: none; }
+.dashboard-startup.is-reduced .startup-brand i { width: min(230px, 45vw); animation: none; }
+@keyframes reduced-startup { to { opacity: 1; transform: none; } }
+
 .site-header { position: sticky; z-index: 100; top: 0; height: var(--header-height); color: var(--white); background: rgba(9, 9, 9, .96); border-bottom: 1px solid var(--line); box-shadow: 0 5px 24px rgba(0, 0, 0, .28); }
 .header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
 .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--white); text-decoration: none; line-height: 1; white-space: nowrap; }
@@ -238,6 +297,19 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .diagnostic-control { min-height: 42px; padding-inline: 7px; }
   .diagnostic-result-actions { display: grid; grid-template-columns: 1fr; }
   .diagnostic-result-actions .button, .diagnostic-result-actions .diagnostic-control { width: 100%; min-height: 48px; }
+  .dashboard-cluster { width: min(650px, 98vw); padding-inline: 8px; }
+  .startup-gauges { gap: 2px; }
+  .startup-indicators { gap: 8px; }
+  .startup-indicators span { min-width: 42px; font-size: .48rem; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .dashboard-cluster { width: min(600px, 80vw); padding-block: 2px; }
+  .startup-indicators { min-height: 38px; margin-top: -20px; }
+  .startup-brand { margin-top: 0; }
+  .startup-brand strong { font-size: 1.5rem; }
+  .startup-brand i { margin-top: 8px; }
+  .startup-skip { bottom: 5px; }
 }
 
 @media (max-width: 430px) {

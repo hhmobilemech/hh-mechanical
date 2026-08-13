@@ -6,10 +6,62 @@
   <meta name="description" content="H&amp;H Mechanical provides practical mobile auto and light-duty diesel repair service.">
   <title>H&amp;H Mechanical | Mobile Auto &amp; Diesel Repair</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="startup.js" defer></script>
   <script src="diagnostic.js" defer></script>
   <script src="app.js" defer></script>
+  <noscript><style>.dashboard-startup{display:none}</style></noscript>
 </head>
 <body>
+  <div class="dashboard-startup" data-dashboard-startup aria-hidden="true">
+    <div class="dashboard-backlight"></div>
+    <div class="dashboard-cluster">
+      <div class="startup-gauges">
+        <div class="startup-gauge startup-gauge-rpm">
+          <svg viewBox="0 0 240 170" focusable="false" aria-hidden="true">
+            <path class="gauge-track" pathLength="100" d="M 28 138 A 96 96 0 1 1 212 138"></path>
+            <path class="gauge-light" pathLength="100" d="M 28 138 A 96 96 0 1 1 212 138"></path>
+            <g class="gauge-ticks">
+              <path d="M38 126l13-3M43 83l12 6M74 49l8 11M119 36v14M165 49l-8 11M197 83l-12 6M202 126l-13-3"></path>
+            </g>
+            <text x="120" y="112">RPM</text>
+            <text class="gauge-unit" x="120" y="131">x1000</text>
+          </svg>
+          <span class="gauge-needle" aria-hidden="true"></span>
+          <span class="gauge-hub" aria-hidden="true"></span>
+        </div>
+
+        <div class="startup-gauge startup-gauge-speed">
+          <svg viewBox="0 0 240 170" focusable="false" aria-hidden="true">
+            <path class="gauge-track" pathLength="100" d="M 28 138 A 96 96 0 1 1 212 138"></path>
+            <path class="gauge-light" pathLength="100" d="M 28 138 A 96 96 0 1 1 212 138"></path>
+            <g class="gauge-ticks">
+              <path d="M38 126l13-3M43 83l12 6M74 49l8 11M119 36v14M165 49l-8 11M197 83l-12 6M202 126l-13-3"></path>
+            </g>
+            <text x="120" y="112">SPEED</text>
+            <text class="gauge-unit" x="120" y="131">MPH</text>
+          </svg>
+          <span class="gauge-needle" aria-hidden="true"></span>
+          <span class="gauge-hub" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="startup-indicators">
+        <span><b aria-hidden="true">▰</b> Engine</span>
+        <span><b aria-hidden="true">＋ −</b> Battery</span>
+        <span><b aria-hidden="true">ABS</b> ABS</span>
+        <span><b aria-hidden="true">(!)</b> Brake</span>
+        <span><b aria-hidden="true">♨</b> Temp</span>
+      </div>
+
+      <div class="startup-brand">
+        <strong>H<span>&amp;</span>H Mechanical</strong>
+        <small>Mobile Auto &amp; Diesel Repair</small>
+        <i aria-hidden="true"></i>
+      </div>
+    </div>
+    <span class="startup-skip">Click, tap or press Esc to skip</span>
+  </div>
+
   <a class="skip-link" href="#main-content">Skip to content</a>
 
   <header class="site-header" data-header>
